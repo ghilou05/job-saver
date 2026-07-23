@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Job Tracker - Save to Notion",
+  "version": "1.0.0",
+  "description": "Save job listings you're viewing straight to your Notion job tracker.",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": ["https://api.notion.com/*"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "job-tracker@yourname.example"
+    }
+  }
+}
