@@ -15,7 +15,7 @@ A lightweight browser extension that lets you save the job listing you're curren
 | Save job title, company, link, and notes to Notion | Done |
 | Auto-fill job title and URL from active tab | Done |
 | Notion token/database configuration via Options page | Done |
-| Icons/Visual polish, i.e. using css to make it look good | Not started yet |
+| Icons/Visual polish, i.e. using css to make it look good | Done |
 | Duplicate job listing detection | Not started yet |
 | Site specific scraping | In progress |
 | OAuth "Login with Notion" | Done |
