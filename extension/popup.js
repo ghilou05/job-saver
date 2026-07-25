@@ -1,15 +1,171 @@
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
-function extractCompanyName() {
-  // 1. JSON-LD JobPosting structured data (most reliable when present)
+// ---------------------------------------------------------------------------
+// Site-specific scrapers.
+// Add one entry per site you want "fully supported" — key is the hostname
+// (window.location.hostname), value is a function returning
+// { jobTitle, company } or null if it can't find what it's looking for.
+//
+// Runs INSIDE the job listing page itself (via scripting.executeScript),
+// so it can only reference things defined within this function — no
+// closures over anything else in this file.
+// ---------------------------------------------------------------------------
+
+function extractJobInfo() {
+  function slugToTitleCase(slug) {
+    return slug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  console.log("start of function")
+  const SITE_SCRAPERS = {
+    "www.gradcracker.com": () => {
+      console.log("GRADCRACKER")
+      const segments = window.location.pathname.split("/").filter(Boolean);
+
+      const titleEl = document.querySelector("h1.tw-text-employer-500");
+
+      const companyEl = slugToTitleCase(segments[2]);
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+
+        company: companyEl?.trim() || null,
+      };
+    },
+    "targetjobs.co.uk": () => {
+      const titleEl = document.querySelector(".main-content h1")
+      const companyEl = document.querySelector('[data-cy="organisation-name]');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent?.trim() || null,
+      };
+    },
+    "careerconnect.manchester.ac.uk": () => {
+      const titleEl = document.querySelector('.inferno-job-details .mb-3');
+      const companyEl = document.querySelector('.inferno-job-details .job-employer');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent?.trim() || null,
+      };
+    },
+    "www.totaljobs.com": () => {
+      const titleEl = document.querySelector('.js-listing-header h1')
+      const companyEl = document.querySelector('.at-listing__list-icons_company-name span')
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent?.trim() || null,
+      };
+    },
+    "www.cv-library.co.uk": () => {
+      const titleEl = document.querySelector('[data-qa="job-title"]');
+      const companyEl = document.querySelector('[data-qa="company-name-link"]');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.trim() || null,
+      };
+    },
+    "www.brightnetwork.co.uk": () => {
+      const titleEl = document.querySelector('#main-content h1');
+      const companyEl = document.querySelector('#main-content .banner-container a span');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.trim() || null,
+      };    
+    },
+    "uk.indeed.com": () => {
+      const titleEl = document.querySelector('.jobsearch-JobInfoHeader-title span');
+      const companyEl = document.querySelector('[data-testid="inlineHeader-companyName"]');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.replace('- job post', '').trim() || null,
+        company: companyEl?.textContent.trim() || null,
+      };    
+    },
+    "www.prospects.ac.uk": () => {
+      const titleEl = document.querySelector('.section-job-details-meta h1');
+      const companyEl = document.querySelector('.section-job-details-meta-data li a');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.trim() || null,
+      };    
+    },    
+    "www.graduate-jobs.com": () => {
+      const titleEl = document.querySelector('.c-job-listing__title');
+      const companyEl = document.querySelector('.c-job-listing__employer');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.trim() || null,
+      };    
+    },        
+    "debut.careers": () => {
+      const titleEl = document.querySelector('.jobs_post h1');
+      const companyEl = document.querySelector('.card-body h3');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.replace('Employer: ', '').trim() || null,
+      };    
+    },        
+  };
+
+  const hostname = window.location.hostname;
+
+  // 1. Site-specific scraper, if we've built one for this exact site
+  console.log("site", SITE_SCRAPERS[hostname]);
+  if (SITE_SCRAPERS[hostname]) {
+    const result = SITE_SCRAPERS[hostname]();
+    if (result && (result.jobTitle || result.company)) {
+      return {
+        jobTitle: result.jobTitle || '',
+        company: result.company || '',
+        source: 'site-specific',
+      };
+    }
+  }
+
+  // 2. Generic fallback: JSON-LD JobPosting structured data
   const ldScripts = document.querySelectorAll('script[type="application/ld+json"]');
   for (const script of ldScripts) {
     try {
       const data = JSON.parse(script.textContent);
       const candidates = Array.isArray(data) ? data : [data];
       for (const item of candidates) {
-        if (item['@type'] === 'JobPosting' && item.hiringOrganization?.name) {
-          return { company: item.hiringOrganization.name, source: 'jsonld' };
+        if (item['@type'] === 'JobPosting') {
+          return {
+            jobTitle: item.title || '',
+            company: item.hiringOrganization?.name || '',
+            source: 'jsonld',
+          };
         }
       }
     } catch (e) {
@@ -17,36 +173,49 @@ function extractCompanyName() {
     }
   }
 
-  // 2. Microdata (older structured-data standard, some sites still use it)
-  const orgEl = document.querySelector(
-    '[itemtype*="schema.org/JobPosting"] [itemprop="hiringOrganization"] [itemprop="name"]'
-  );
-  if (orgEl?.textContent?.trim()) {
-    return { company: orgEl.textContent.trim(), source: 'microdata' };
+  // 3. Generic fallback: Microdata
+  const scope = document.querySelector('[itemtype*="schema.org/JobPosting"]');
+  if (scope) {
+    const titleEl = scope.querySelector('[itemprop="title"]');
+    const orgEl = scope.querySelector('[itemprop="hiringOrganization"] [itemprop="name"]');
+    if (titleEl || orgEl) {
+      return {
+        jobTitle: titleEl?.textContent?.trim() || '',
+        company: orgEl?.textContent?.trim() || '',
+        source: 'microdata',
+      };
+    }
   }
 
-  // 3. Nothing reliable found — leave blank, user types it manually.
-  // (og:site_name deliberately excluded — it's almost always the job board's
-  // own brand, e.g. "LinkedIn", not the actual hiring company.)
-  return { company: '', source: 'none' };
+  // 4. Nothing found — caller falls back to tab.title, company stays blank
+  return { jobTitle: '', company: '', source: 'none' };
 }
 
 async function init() {
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
-  document.getElementById('jobTitle').value = tab.title;
   document.getElementById('url').value = tab.url;
 
-  // Try to auto-fill the company name from the page itself
+  // Default to the tab's own title/blank company, then try to improve on it
+  document.getElementById('jobTitle').value = tab.title;
+  document.getElementById('company').value = '';
+
   try {
     const [{ result }] = await api.scripting.executeScript({
       target: { tabId: tab.id },
-      func: extractCompanyName,
+      func: extractJobInfo,
     });
+
+    // Only override the tab title if the scraper actually found one —
+    // otherwise keep the tab title, which is still better than nothing.
+    if (result.jobTitle) {
+      document.getElementById('jobTitle').value = result.jobTitle;
+    }
     document.getElementById('company').value = result.company;
-    console.log('Company source:', result.source); // remove once confirmed working well
+
+    console.log('Extraction source:', result.source); // remove once confirmed working well
   } catch (e) {
     // Some pages (chrome:// pages, PDF viewers, etc.) block script injection —
-    // just leave the company field blank for manual entry in that case.
+    // tab title / blank company (already set above) is the safe fallback.
   }
 
   // Render the destination checkboxes
