@@ -1,0 +1,230 @@
+:root {
+  --bg-page: #16161f;
+  --bg-card: #1c1d29;
+  --bg-input: #14141d;
+  --border: #2b2c3b;
+  --border-hover: #3a3b4d;
+  --text-primary: #e9e9f2;
+  --text-secondary: #9394a8;
+  --text-placeholder: #5c5d70;
+  --accent: #7c6cf0;
+  --accent-light: #b9aefc;
+  --accent-bg: rgba(124, 108, 240, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-page);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+}
+
+.wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 10px;
+}
+
+/* Header */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bookmark-icon {
+  color: var(--text-secondary);
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.save-link {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.save-link:hover {
+  color: var(--text-primary);
+}
+
+/* Shared label styling */
+
+label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Save-to destination list */
+
+.database-selection {
+  margin-bottom: 16px;
+}
+
+.database-selection > label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+#destinations {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#destinations label {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+#destinations label:hover {
+  border-color: var(--border-hover);
+}
+
+#destinations label:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-light);
+}
+
+.dest-check {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1.5px solid var(--border-hover);
+  border-radius: 4px;
+  background: var(--bg-input);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.dest-check:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.dest-check:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Form fields */
+
+.field {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent-light);
+  background: var(--accent-bg);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.field input {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.field input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Save button */
+
+#save {
+  width: 100%;
+  margin-top: 18px;
+  padding: 11px;
+  background: var(--accent-bg);
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  color: var(--accent-light);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+#save:hover {
+  background: rgba(124, 108, 240, 0.22);
+}
+
+#save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#status-msg {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  min-height: 14px;
+}

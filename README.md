@@ -20,3 +20,4 @@ A lightweight browser extension that lets you save the job listing you're curren
 | Site specific scraping | In progress |
 | OAuth "Login with Notion" | Done |
 | User can customise what fields the plugin saves to the database, i.e. adding/removing fields | Not started yet |
+| preventing duplicate logins and testing logout functionality | NOt started yet |
