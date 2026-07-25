@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <style>
-    body { width: 280px; font-family: sans-serif; padding: 12px; }
-    label { display: block; font-size: 12px; margin-top: 8px; }
-    input { width: 100%; padding: 6px; }
-  </style>
+<meta charset="UTF-8" />
+<style>
+  body { width: 280px; font-family: sans-serif; padding: 12px; }
+  label { display: block; font-size: 12px; margin-top: 8px; }
+  input, select { width: 100%; padding: 6px; }
+</style>
 </head>
 <body>
   <h3>Save this job</h3>
+
+  <label>Save to</label>
+  <div id="destinations"></div>
 
   <label>Job title</label>
   <input id="jobTitle" />
