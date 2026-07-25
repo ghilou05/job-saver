@@ -136,6 +136,60 @@ function extractJobInfo() {
         company: companyEl?.textContent.replace('Employer: ', '').trim() || null,
       };    
     },        
+    "www.linkedin.com": () => {
+      const titleEl = document.querySelector('a[href*="/jobs/view/"]');
+      const companyEl = document.querySelector('a[href*="/company/"]');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.replace('Employer: ', '').trim() || null,
+      };    
+    },        
+    "higherin.com": () => {
+      const el = document.querySelector('[company-name][job-title]');
+      if (!el) return null;
+
+      return {
+        jobTitle: el.getAttribute('job-title') || null,
+        company: el.getAttribute('company-name'),
+      };    
+    },  
+    "workinstartups.com": () => {
+      const titleEl = document.querySelector('.ui-adp-content h1');
+      const companyEl = document.querySelector('.ui-company');
+
+      if (!titleEl && !companyEl) return null;
+
+      return {
+        jobTitle: titleEl?.textContent?.trim() || null,
+        company: companyEl?.textContent.replace('Employer: ', '').trim() || null,
+      };    
+    },   
+    "app.welcometothejungle.com": () => {
+      const titleEl = document.querySelector('[data-testid="job-title"]');
+      const logoEl = document.querySelector('[data-testid="company-logo"] img');
+      
+      let jobTitle = null;
+      if (titleEl) {
+        jobTitle = Array.from(titleEl.childNodes)
+          .filter(node => node.nodeType === Node.TEXT_NODE)
+          .map(node => node.textContent.trim())
+          .join(' ')
+          .replace(/,\s*$/, '')
+          .trim();
+      }
+
+      const company = logoEl?.getAttribute('alt') || null;
+
+      if (!jobTitle && !company) return null;
+
+      return {
+        jobTitle: jobTitle || null,
+        company
+      };    
+    },           
   };
 
   const hostname = window.location.hostname;
