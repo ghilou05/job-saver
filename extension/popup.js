@@ -1,10 +1,55 @@
 const api = typeof browser !== 'undefined' ? browser : chrome;
 
+function extractCompanyName() {
+  // 1. JSON-LD JobPosting structured data (most reliable when present)
+  const ldScripts = document.querySelectorAll('script[type="application/ld+json"]');
+  for (const script of ldScripts) {
+    try {
+      const data = JSON.parse(script.textContent);
+      const candidates = Array.isArray(data) ? data : [data];
+      for (const item of candidates) {
+        if (item['@type'] === 'JobPosting' && item.hiringOrganization?.name) {
+          return { company: item.hiringOrganization.name, source: 'jsonld' };
+        }
+      }
+    } catch (e) {
+      // malformed JSON-LD on the page, skip it
+    }
+  }
+
+  // 2. Microdata (older structured-data standard, some sites still use it)
+  const orgEl = document.querySelector(
+    '[itemtype*="schema.org/JobPosting"] [itemprop="hiringOrganization"] [itemprop="name"]'
+  );
+  if (orgEl?.textContent?.trim()) {
+    return { company: orgEl.textContent.trim(), source: 'microdata' };
+  }
+
+  // 3. Nothing reliable found — leave blank, user types it manually.
+  // (og:site_name deliberately excluded — it's almost always the job board's
+  // own brand, e.g. "LinkedIn", not the actual hiring company.)
+  return { company: '', source: 'none' };
+}
+
 async function init() {
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
   document.getElementById('jobTitle').value = tab.title;
   document.getElementById('url').value = tab.url;
 
+  // Try to auto-fill the company name from the page itself
+  try {
+    const [{ result }] = await api.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: extractCompanyName,
+    });
+    document.getElementById('company').value = result.company;
+    console.log('Company source:', result.source); // remove once confirmed working well
+  } catch (e) {
+    // Some pages (chrome:// pages, PDF viewers, etc.) block script injection —
+    // just leave the company field blank for manual entry in that case.
+  }
+
+  // Render the destination checkboxes
   const { destinations } = await api.storage.sync.get(['destinations']);
   const container = document.getElementById('destinations');
 
@@ -54,7 +99,7 @@ document.getElementById('save').addEventListener('click', async () => {
 
   statusMsg.textContent = `Saving to ${selectedDestinations.length} destination(s)...`;
 
-  // Fire all saves in parallel, track which succeed and which fail
+  // Fire all saves in parallel; track which succeed and which fail independently
   const results = await Promise.allSettled(
     selectedDestinations.map(dest =>
       fetch('https://api.notion.com/v1/pages', {
