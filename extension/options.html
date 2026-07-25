@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family: sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px;">
+  <h3>Job Tracker Destinations</h3>
+
+  <button id="loginWithNotion">Log in with Notion</button>
+  <div id="loginStatus" style="margin-top:8px; font-size:13px;"></div>
+
+  <hr style="margin: 20px 0;" />
+
+  <p style="font-size:13px; color:#555;">Or add a destination manually:</p>
+
+  <div id="list"></div>
+
+  <h4>Add a new destination</h4>
+  <label>Label (shown in the popup dropdown)</label><br/>
+  <input id="newLabel" placeholder="e.g. Summer Internships" style="width:100%" /><br/><br/>
+
+  <label>Integration Token</label><br/>
+  <input id="newToken" placeholder="secret_..." style="width:100%" /><br/><br/>
+
+  <label>Database ID</label><br/>
+  <input id="newDbId" style="width:100%" /><br/><br/>
+
+  <button id="add">Add destination</button>
+  <div id="status" style="margin-top:10px; font-size:13px; color:#1e824c;"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

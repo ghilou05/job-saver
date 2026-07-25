@@ -3,7 +3,7 @@
   "name": "Job Tracker - Save to Notion",
   "version": "1.0.0",
   "description": "Save job listings you're viewing straight to your Notion job tracker.",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "identity"],
   "host_permissions": ["https://api.notion.com/*"],
   "action": {
     "default_popup": "popup.html"
