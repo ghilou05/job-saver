@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Job Tracker - Save to Notion",
   "version": "1.0.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnF5+dLTlk/SoZ83PsCWwvLbVnRfFv02nhIISCvZZKoC950wwPKHIXehJAwN1FPiCJBRRppNrC0t4113BmYTySFnGlmZf+uOAt5/wAu4e/qQc6yarPdeVJzkQ7q1gTM+r8f7dKthJJuUgANHXw+q5sTOkI3lsQW7lI05nH9Qy4K2fvBtId5mokqdaisYMAvveVUzQGSDeWq+9sJ/DWyXjGY6GFZh84VNjhWy8jsRxhwy+B6EWh/FeeJI8Lzmd6oDYWjG/0Pwd0xnu7/ZUjebVQIHIhGc6Vr5oOWqlpR66uhZqHD1bE2WqMBjsEDzsWfOQaUKwsu0aytWCY0CitVJ3EQIDAQAB",
   "description": "Save job listings you're viewing straight to your Notion job tracker.",
   "permissions": ["activeTab", "storage", "identity", "scripting"],
   "host_permissions": ["https://api.notion.com/*"],
